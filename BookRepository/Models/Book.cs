@@ -27,5 +27,7 @@ namespace BookRepository.Models
 
         [Required]
         public int Pages { get; set; }
+
+        public ICollection<Review> Reviews { get; set; }
     }
 }

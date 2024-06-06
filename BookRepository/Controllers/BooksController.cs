@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BookRepository.Interfaces;
+using BookRepository.Models;
+using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,11 +10,17 @@ namespace BookRepository.Controllers
     [ApiController]
     public class BooksController : ControllerBase
     {
+        private readonly IBooksRepository _booksRepository;
+
+        public BooksController(IBooksRepository booksRepository)
+        {
+            _booksRepository = booksRepository;
+        }
         // GET: api/<BooksController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IActionResult Get()
         {
-            return new string[] { "value1", "value2" };
+            return Ok(_booksRepository.GetBooks());
         }
 
         // GET api/<BooksController>/5

@@ -11,7 +11,13 @@ namespace BookRepository.Models
         public int UserId { get; set; }
 
         [Required]
-        public int BookId {  get; set; }
+        public User User { get; set; }
+
+        [Required]
+        public int BookId { get; set; }
+
+        [Required]
+        public Book Book { get; set; }
 
         [Required]
         [StringLength(1000)]
