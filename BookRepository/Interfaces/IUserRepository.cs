@@ -10,6 +10,7 @@ namespace BookRepository.Interfaces
         bool UpdateUser(User user);
         bool DeleteUser(User user);
         bool Save();
+        ICollection<Review> GetUserReviews(int id);
 
     }
 }

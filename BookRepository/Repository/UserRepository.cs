@@ -29,6 +29,11 @@ namespace BookRepository.Repository
             return _context.Users.Where(b => b.Id == id).FirstOrDefault();
         }
 
+        public ICollection<Review> GetUserReviews(int id)
+        {
+            return _context.Reviews.Where(b => b.UserId == id).ToList();
+        }
+
         public ICollection<User> GetUsers()
         {
             return _context.Users.OrderBy(b => b.Id).ToList();

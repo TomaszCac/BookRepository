@@ -49,5 +49,10 @@ namespace BookRepository.Controllers
         {
             return Ok(_userRepository.DeleteUser(_mapper.Map<User>(user)));
         }
+        [HttpGet("reviews/{userId}")]
+        public IActionResult GetReviews(int userId)
+        {
+            return Ok(_mapper.Map<ICollection<ReviewDto>>(_userRepository.GetUserReviews(userId)));
+        }
     }
 }
