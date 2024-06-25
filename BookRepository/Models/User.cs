@@ -17,12 +17,14 @@ namespace BookRepository.Models
         public string Username { get; set; }
 
         [Required]
-        [StringLength(50, MinimumLength = 8)]
-        public string Password { get; set; }
+        public byte[] PasswordHash { get; set; }
+
+        [Required]
+        public byte[] PasswordSalt { get; set; }
 
         public string Role { get; set; }
 
         public ICollection<Review> Reviews { get; set; }
-        
+
     }
 }

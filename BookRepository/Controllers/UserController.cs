@@ -38,21 +38,10 @@ namespace BookRepository.Controllers
             return Ok(_userRepository.CreateUser(_mapper.Map<User>(user)));
         }
 
-        [HttpPut]
-        public IActionResult Put([FromBody] UserDto user)
-        {
-            return Ok(_userRepository.UpdateUser(_mapper.Map<User>(user)));
-        }
-
         [HttpDelete]
-        public IActionResult Delete(UserDto user)
+        public IActionResult Delete(int id)
         {
-            return Ok(_userRepository.DeleteUser(_mapper.Map<User>(user)));
-        }
-        [HttpGet("reviews/{userId}")]
-        public IActionResult GetReviews(int userId)
-        {
-            return Ok(_mapper.Map<ICollection<ReviewDto>>(_userRepository.GetUserReviews(userId)));
+            return Ok(_userRepository.DeleteUser(id));
         }
     }
 }

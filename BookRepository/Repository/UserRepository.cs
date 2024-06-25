@@ -1,6 +1,8 @@
 ﻿using BookRepository.Data;
+using BookRepository.Dto;
 using BookRepository.Interfaces;
 using BookRepository.Models;
+using System.Security.Cryptography;
 
 namespace BookRepository.Repository
 {
@@ -18,20 +20,15 @@ namespace BookRepository.Repository
             return Save();
         }
 
-        public bool DeleteUser(User user)
+        public bool DeleteUser(int id)
         {
-            _context.Users.Remove(user);
+            _context.Users.Remove(_context.Users.Where(b => b.Id == id).FirstOrDefault());
             return Save();
         }
 
         public User GetUser(int id)
         {
             return _context.Users.Where(b => b.Id == id).FirstOrDefault();
-        }
-
-        public ICollection<Review> GetUserReviews(int id)
-        {
-            return _context.Reviews.Where(b => b.UserId == id).ToList();
         }
 
         public ICollection<User> GetUsers()
@@ -45,10 +42,41 @@ namespace BookRepository.Repository
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateUser(User user)
+        public bool UpdatePassword(string password, int id)
         {
-            _context.Users.Update(user);
+            var user = _context.Users.Where(b => b.Id == id).FirstOrDefault();
+            using (var hmac = new HMACSHA512())
+            {
+                user.PasswordSalt = hmac.Key;
+                user.PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            }
+            _context.Update(user);
             return Save();
+        }
+
+        public bool UpdateUsername(string username, int id)
+        {
+            var user = _context.Users.Where(b => b.Id == id).FirstOrDefault();
+            user.Username = username;
+            _context.Update(user);
+            return Save();
+        }
+
+        public bool VerifyPassword(UserDto user)
+        {
+            using (var hmac = new HMACSHA512(_context.Users.Where(b => b.Email == user.Email).FirstOrDefault().PasswordSalt))
+            {
+                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(user.Password));
+                return computedHash.SequenceEqual(_context.Users.Where(b => b.Email == user.Email).FirstOrDefault().PasswordHash);
+            }
+        }
+
+        public bool VerifyEmail(string email)
+        {
+            if (_context.Users.Any(b => b.Email == email))
+                return true;
+            else
+                return false;
         }
     }
 }
