@@ -7,6 +7,7 @@ namespace BookRepository.Interfaces
     {
         ICollection<User> GetUsers();
         User GetUser(int id);
+        string CreateToken(UserDto user);
         bool CreateUser(User user);
         bool UpdateUsername(string username, int id);
         bool UpdatePassword(string password, int id);

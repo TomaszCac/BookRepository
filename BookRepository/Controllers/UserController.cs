@@ -31,6 +31,27 @@ namespace BookRepository.Controllers
         {
             return Ok(_mapper.Map<UserDto>(_userRepository.GetUser(id)));
         }
+        [HttpPost("register")]
+        public IActionResult Register(UserDto user)
+        {
+            return Ok(_userRepository.CreateUser(_mapper.Map<User>(user)));
+        }
+        [HttpPost("login")]
+        public IActionResult Login(UserDto user)
+        {
+            if (!_userRepository.VerifyEmail(user.Email))
+            {
+                ModelState.AddModelError("", "User not found");
+                return BadRequest(ModelState);
+            }
+            if (!_userRepository.VerifyPassword(user))
+            {
+                ModelState.AddModelError("", "Wrong password");
+                return BadRequest(ModelState);
+            }
+            return Ok(_userRepository.CreateToken(user));
+                
+        }
 
         [HttpPost]
         public IActionResult Post([FromBody] UserDto user)

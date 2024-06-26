@@ -2,6 +2,9 @@
 using BookRepository.Dto;
 using BookRepository.Interfaces;
 using BookRepository.Models;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
 
 namespace BookRepository.Repository
@@ -9,10 +12,12 @@ namespace BookRepository.Repository
     public class UserRepository : IUserRepository
     {
         private readonly DataContext _context;
+        private readonly IConfiguration _configuration;
 
-        public UserRepository(DataContext context)
+        public UserRepository(DataContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
         public bool CreateUser(User user)
         {
@@ -64,10 +69,11 @@ namespace BookRepository.Repository
 
         public bool VerifyPassword(UserDto user)
         {
-            using (var hmac = new HMACSHA512(_context.Users.Where(b => b.Email == user.Email).FirstOrDefault().PasswordSalt))
+            var userEntity = _context.Users.Where(b => b.Email == user.Email).FirstOrDefault();
+            using (var hmac = new HMACSHA512(userEntity.PasswordSalt))
             {
                 var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(user.Password));
-                return computedHash.SequenceEqual(_context.Users.Where(b => b.Email == user.Email).FirstOrDefault().PasswordHash);
+                return computedHash.SequenceEqual(userEntity.PasswordHash);
             }
         }
 
@@ -77,6 +83,26 @@ namespace BookRepository.Repository
                 return true;
             else
                 return false;
+        }
+
+        public string CreateToken(UserDto user)
+        {
+            var userEntity = _context.Users.Where(b => b.Email == user.Email).FirstOrDefault();
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, userEntity.Username),
+                new Claim(ClaimTypes.Role, userEntity.Role)
+            };
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value));
+            var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: cred
+                ) ;
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+            return jwt;
         }
     }
 }

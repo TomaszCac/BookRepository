@@ -21,7 +21,7 @@ namespace BookRepository.Helper
             public User Convert(UserDto source, User destination, ResolutionContext context)
             {
                 User user = new User();
-                using (var hmac = new HMACSHA256())
+                using (var hmac = new HMACSHA512())
                 {
                     user.PasswordSalt = hmac.Key;
                     user.PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(source.Password));
